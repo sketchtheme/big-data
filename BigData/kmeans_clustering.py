@@ -123,17 +123,34 @@ with open('Clustering_dataset.txt') as file:
 # # ========================================================================= test over
 
 
+# # Fit centroids to dataset
+# kmeans = KMeans()
+# kmeans.fit(X_train)
+
+# # View results
+# class_centers, classification = kmeans.evaluate(X_train)
+
+# plt.plot([x for x, _ in kmeans.centroids],
+#          [y for _, y in kmeans.centroids],
+#          '+',
+#          markersize=10,
+#          )
+# plt.title("k-means")
+# plt.show()
 # Fit centroids to dataset
 kmeans = KMeans()
 kmeans.fit(X_train)
 
-# View results
+# Get centroids and classifications
 class_centers, classification = kmeans.evaluate(X_train)
 
-plt.plot([x for x, _ in kmeans.centroids],
-         [y for _, y in kmeans.centroids],
-         '+',
-         markersize=10,
-         )
-plt.title("k-means")
+# Convert the data points to numpy array for easier plotting
+X_train_np = np.array(X_train)
+
+# Plot centroids and data points
+plt.scatter(X_train_np[:, 0], X_train_np[:, 1], c=classification, cmap='viridis', label='Data Points')
+plt.scatter([x for x, _ in kmeans.centroids], [y for _, y in kmeans.centroids], marker='+', s=200, c='red', label='Centroids')
+
+plt.title("K-means Clustering")
+plt.legend()
 plt.show()
