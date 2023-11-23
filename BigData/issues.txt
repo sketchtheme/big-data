@@ -1,0 +1,21 @@
+Issue 1: Incorrect centroid initialization
+
+    Description: The original centroid initialization method using distances and probabilities didn't run as expected.
+    
+    Solution: Revised the centroid initialization logic to calculate distances using the minimum distance to existing centroids 
+    and properly normalize these distances to select new centroids.
+
+Issue 2: Handling "Mean of empty slice" RuntimeWarning
+
+    Description: During centroid reassignment, some clusters had no points assigned to them, 
+    resulting in the np.mean() function operating on an empty list and producing NaN values.
+    
+    Solution: Modified the code to skip updating centroids for clusters with no points. 
+    A conditional check was added to retain the previous centroid for empty clusters, 
+    avoiding calculations on empty lists and preventing the "Mean of empty slice" warning.
+
+Overview of Changes Made:
+
+    Adjusted centroid initialization to ensure proper centroid selection based on distances and probabilities.
+    Implemented a check during centroid reassignment to skip updating centroids for clusters with no points assigned to them, 
+    preventing NaN values and the "Mean of empty slice" warning.

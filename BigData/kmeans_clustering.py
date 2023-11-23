@@ -40,15 +40,15 @@ class KMeans:
         self.max_iter = max_iter
 
     def fit(self, X_train):
-
         # Initialize the centroids, using the "k-means++" method, where a random datapoint is selected as the first,
         # then the rest are initialized w/ probabilities proportional to their distances to the first
         # Pick a random point from train data for first centroid
         self.centroids = [random.choice(X_train)]
-
         for _ in range(self.n_clusters-1):
             # Calculate distances from points to the centroids
-            dists = np.sum([euclidean(centroid, X_train) for centroid in self.centroids], axis=0)
+            # the original code sniped below was not correct, or to say, did not run on mine
+            # dists = np.sum([euclidean(centroid, X_train) for centroid in self.centroids], axis=0)
+            dists = np.array([min([euclidean(centroid, [x]) for centroid in self.centroids]) for x in X_train])
             # Normalize the distances
             dists /= np.sum(dists)
             # Choose remaining points based on their distances
@@ -61,6 +61,7 @@ class KMeans:
 
         # Iterate, adjusting centroids until converged or until passed max_iter
         iteration = 0
+        prev_centroids = np.zeros_like(self.centroids)
         while np.not_equal(self.centroids, prev_centroids).any() and iteration < self.max_iter:
             # Sort each datapoint, assigning to nearest centroid
             sorted_points = [[] for _ in range(self.n_clusters)]
@@ -70,11 +71,16 @@ class KMeans:
                 sorted_points[centroid_idx].append(x)
 
             # Push current centroids to previous, reassign centroids as mean of the points belonging to them
-            prev_centroids = self.centroids
-            self.centroids = [np.mean(cluster, axis=0) for cluster in sorted_points]
-            for i, centroid in enumerate(self.centroids):
-                if np.isnan(centroid).any():  # Catch any np.nans, resulting from a centroid having no points
-                    self.centroids[i] = prev_centroids[i]
+            prev_centroids = np.copy(self.centroids)
+            
+            # the next line of code causes "Mean of empty slice" warning. During centroid reassignment, some clusters end up having no points assigned to them. This causes the np.mean() function to operate on an empty list, resulting in NaN (Not a Number) values 
+            # self.centroids = [np.mean(cluster, axis=0) for cluster in sorted_points]
+            # for i, centroid in enumerate(self.centroids):
+            #     if np.isnan(centroid).any():  # Catch any np.nans, resulting from a centroid having no points
+            #         self.centroids[i] = prev_centroids[i]
+            
+            # Update centroids if the cluster is not empty
+            self.centroids = [np.mean(cluster, axis=0) if cluster else prev_centroids[i] for i, cluster in enumerate(sorted_points)]
             iteration += 1
 
     def evaluate(self, X):
@@ -97,6 +103,19 @@ with open('Clustering_dataset.txt') as file:
 
 
 # # ========================================================================= test begin
+# import numpy as np
+
+# # Assuming 'dists' is a list of probabilities associated with each element in the range(l)
+# # 'l' represents the number of elements you're choosing from
+# l = len(X_train)  # Example: replace X_train with your actual data
+# # Generating sample probabilities (replace this with your actual probabilities)
+# dists = np.random.rand(l)
+# dists /= np.sum(dists)  # Normalize to ensure sum of probabilities is 1.0
+
+# # Check the sum of probabilities
+# sum_of_probs = np.sum(dists)
+# print("Sum of probabilities:", sum_of_probs)
+
 # centroids = [random.choice(X_train)]
 # flat_data = [val for sublist in X_train for val in sublist]
 # flat_point = [val for val in centroids]
